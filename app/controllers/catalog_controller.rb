@@ -35,6 +35,10 @@ class CatalogController < ApplicationController
     ## Optional fine-tuning for advanced search, e.g., set different limits for
     ## different facets.
     # config.advanced_search.form_solr_parameters = {}
+    #
+    ## What type of HTTP request to make to solr. Use `:post' to support requests longer than the URI length limit.
+    ## (default is `:get')
+    config.http_method = :post
 
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
@@ -255,7 +259,7 @@ class CatalogController < ApplicationController
     config.spell_max = 5
 
     # Configuration for autocomplete suggester
-    config.autocomplete_enabled = true
+    config.autocomplete_enabled = false
     config.autocomplete_path = "suggest"
     # if the name of the solr.SuggestComponent provided in your solrconfig.xml is not the
     # default 'mySuggester', uncomment and provide it below
