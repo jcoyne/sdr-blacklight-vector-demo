@@ -8,7 +8,21 @@ class SearchBuilder < Blacklight::SearchBuilder
   def add_embedding_to_query(solr_parameters)
     return unless blacklight_params[:q].present?
 
-    solr_parameters[:q] = "{!parent which='doc_type_ssi:parent'}{!knn f=vector topK=10}[#{retrieve_embedding(blacklight_params[:q]).join(',')}]"
+    must = solr_parameters.dig(:json, :query, :bool, :must)
+    solr_parameters[:json][:query][:bool] = {
+      should: must + [
+        parent: {
+          which: "doc_type_ssi:parent",
+          query: {
+            knn: {
+              f: "vector",
+              topK: 10,
+              query:  "[#{retrieve_embedding(blacklight_params[:q]).join(', ')}]"
+            }
+          }
+        }
+      ]
+    }
   end
 
   def retrieve_embedding(input)
