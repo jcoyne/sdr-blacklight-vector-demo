@@ -13,11 +13,22 @@
 """
 Local embedding helper for Qwen/Qwen3-Embedding-0.6B.
 
-Reads a JSON array of strings from stdin, writes a JSON array of float
-arrays (one per input) to stdout, and exits.
+Reads a JSON object from stdin with the following shape:
+
+    {
+      "texts": ["string", ...],
+      "instruction": "optional instruction string"
+    }
+
+When "instruction" is present every text is prefixed with:
+
+    Instruct: {instruction}\nQuery: {text}
+
+Writes a JSON array of float arrays (one per input) to stdout and exits.
 
 Usage (called by Ruby via Open3):
-    echo '["hello world", "foo bar"]' | uv run script/embed.py
+    echo '{"texts": ["hello world"]}' | uv run script/embed.py
+    echo '{"texts": ["hello world"], "instruction": "..."}' | uv run script/embed.py
 """
 
 import json
@@ -58,6 +69,17 @@ def load_model():
     return tokenizer, model
 
 
+def apply_instruction(texts, instruction):
+    """Prepend the Qwen3-Embedding instruction prefix to each query.
+
+    Newlines in user-supplied text are collapsed to spaces so that an attacker
+    cannot inject a second "Instruct:" line and confuse the model about which
+    instruction is in effect.
+    """
+    sanitized = [text.replace("\n", " ").replace("\r", " ") for text in texts]
+    return [f"Instruct: {instruction}\nQuery: {text}" for text in sanitized]
+
+
 def encode(texts, tokenizer, model, max_length=8192):
     import torch
     import torch.nn.functional as F
@@ -87,14 +109,23 @@ def main():
         return
 
     try:
-        texts = json.loads(raw)
+        payload = json.loads(raw)
     except json.JSONDecodeError as exc:
         print(json.dumps({"error": f"Invalid JSON input: {exc}"}), file=sys.stderr)
         sys.exit(1)
 
+    if not isinstance(payload, dict) or "texts" not in payload:
+        print(
+            json.dumps({"error": 'Input must be a JSON object with a "texts" key'}),
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    texts = payload["texts"]
+
     if not isinstance(texts, list):
         print(
-            json.dumps({"error": "Input must be a JSON array of strings"}),
+            json.dumps({"error": '"texts" must be an array of strings'}),
             file=sys.stderr,
         )
         sys.exit(1)
@@ -102,6 +133,10 @@ def main():
     if len(texts) == 0:
         print("[]")
         return
+
+    instruction = payload.get("instruction")
+    if instruction:
+        texts = apply_instruction(texts, instruction)
 
     tokenizer, model = load_model()
     embeddings = encode(texts, tokenizer, model)

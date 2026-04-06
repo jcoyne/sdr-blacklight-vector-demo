@@ -9,6 +9,7 @@ class SearchBuilder < Blacklight::SearchBuilder
     return unless blacklight_params[:q].present?
 
     must = solr_parameters.dig(:json, :query, :bool, :must)
+    # must = []
     solr_parameters[:json][:query][:bool] = {
       should: must + [
         parent: {
@@ -28,7 +29,8 @@ class SearchBuilder < Blacklight::SearchBuilder
   def retrieve_embedding(input)
     Rails.cache.fetch("embedding/#{input}") do
       client = Qwen3Embedding.new
-      client.embedding(input: [ input ]).first
+      client.embedding(input: [ input ],
+                       instruction: Qwen3Embedding::DEFAULT_QUERY_INSTRUCTION).first
     end
   end
 end
