@@ -71,3 +71,5 @@ group :development, :test do
   gem "solr_wrapper", ">= 0.3"
 end
 gem "rsolr", ">= 1.0", "< 3"
+
+gem "view_component", "~> 4.6"
