@@ -11,6 +11,11 @@ class SearchBuilder < Blacklight::SearchBuilder
     solr_parameters[:json][:query][:bool] = {
       should: keyword(solr_parameters) + knn
     }
+    return unless knn.present?
+
+    solr_parameters[:json][:params] ||= {}
+    solr_parameters[:json][:params][:reRankQuery] = knn
+    solr_parameters[:json][:params][:reRankDocs] = 100
   end
 
   def keyword(solr_parameters)
@@ -20,8 +25,7 @@ class SearchBuilder < Blacklight::SearchBuilder
 
   def knn
     return [] if blacklight_params[:search_type] == "keyword"
-
-    [
+    @knn ||= [
       parent: {
         which: "doc_type_ssi:parent",
         query: {
