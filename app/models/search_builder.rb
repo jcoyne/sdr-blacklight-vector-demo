@@ -18,7 +18,8 @@ class SearchBuilder < Blacklight::SearchBuilder
             knn: {
               f: "vector",
               topK: 10,
-              query:  "[#{retrieve_embedding(blacklight_params[:q]).join(', ')}]"
+              query:  "[#{retrieve_embedding(blacklight_params[:q]).join(', ')}]",
+              boost: 10.0
             }
           }
         }
