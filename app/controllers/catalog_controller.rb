@@ -46,6 +46,10 @@ class CatalogController < ApplicationController
       'q.alt': "*:*"
     }
 
+    # If you add any inputs to the search form, you must specify them so that they are not stripped out as unpermitted.
+    # By default this includes the fields required for basic search and advanced search.
+    config.search_state_fields += [ :search_type ]
+
     # solr path which will be added to solr base url before the other solr params.
     # config.solr_path = 'select'
     # config.document_solr_path = 'get'
@@ -65,7 +69,7 @@ class CatalogController < ApplicationController
     # Some components can be configured
     # config.index.document_component = MyApp::SearchResultComponent
     # config.index.constraints_component = MyApp::ConstraintsComponent
-    # config.index.search_bar_component = MyApp::SearchBarComponent
+    config.index.search_bar_component = SearchBarComponent
     # config.index.search_header_component = MyApp::SearchHeaderComponent
     # config.index.document_actions.delete(:bookmark)
 
