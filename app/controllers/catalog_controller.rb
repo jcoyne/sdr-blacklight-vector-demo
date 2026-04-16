@@ -44,6 +44,7 @@ class CatalogController < ApplicationController
     config.default_solr_params = {
       rows: 10,
       'q.alt': "*:*"
+      # 'qf': "all_search_tesi"
     }
 
     # If you add any inputs to the search form, you must specify them so that they are not stripped out as unpermitted.
@@ -59,7 +60,7 @@ class CatalogController < ApplicationController
     # config.per_page = [10,20,50,100]
 
     # solr field configuration for search results/index views
-    config.index.title_field = "title_tesi"
+    config.index.title_field = "title_display_tesi"
     # config.index.display_type_field = 'format'
     # config.index.thumbnail_field = 'thumbnail_path_ss'
 
@@ -133,6 +134,10 @@ class CatalogController < ApplicationController
     # in the facet config)
 
     config.add_facet_field "doc_type_ssi", label: "Format"
+    config.add_facet_field "author_person_ssim", label: "Author", limit: 6, suggest: true
+    config.add_facet_field "author_other_ssim", label: "Organization (as author)", limit: 6, suggest: true
+    config.add_facet_field "topic_ssim", label: "Topic", limit: 6, suggest: true
+    config.add_facet_field "format_hsim", label: "Format", sort: :index
     # config.add_facet_field "pub_date_ssim", label: "Publication Year", single: true
     # config.add_facet_field "subject_ssim", label: "Topic", limit: 20, index_range: "A".."Z"
     # config.add_facet_field "language_ssim", label: "Language", limit: true
