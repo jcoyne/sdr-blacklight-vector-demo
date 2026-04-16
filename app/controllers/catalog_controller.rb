@@ -43,8 +43,8 @@ class CatalogController < ApplicationController
     ## Default parameters to send to solr for all search-like requests. See also SearchBuilder#processed_parameters
     config.default_solr_params = {
       rows: 10,
-      'q.alt': "*:*"
-      # 'qf': "all_search_tesi"
+      'q.alt': "*:*",
+      'qf': "all_search_tesi"
     }
 
     # If you add any inputs to the search form, you must specify them so that they are not stripped out as unpermitted.
