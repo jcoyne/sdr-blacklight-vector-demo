@@ -72,4 +72,4 @@ group :development, :test do
 end
 gem "rsolr", ">= 1.0", "< 3"
 
-gem "view_component", "~> 4.6"
+gem "view_component", "~> 4.8"
